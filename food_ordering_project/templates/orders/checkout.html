@@ -1,0 +1,70 @@
+{% extends 'base_public.html' %}
+{% block title %}Checkout{% endblock %}
+
+{% block content %}
+<div class="public-content" style="max-width: 820px;">
+  <h1 style="margin-bottom: 24px;">Checkout</h1>
+
+ <div class="checkout-layout" style="display: grid; grid-template-columns: 1fr 300px; gap: 24px; align-items: start;">
+    <!-- Checkout Form -->
+    <div>
+      <div class="card" style="margin-bottom: 20px;">
+        <div class="card-header"><span class="card-title">📍 Delivery Details</span></div>
+        <div class="card-body">
+          <form method="post" id="checkoutForm" novalidate>
+            {% csrf_token %}
+            <div class="form-group">
+              <label class="form-label">Delivery Address *</label>
+              <textarea name="delivery_address" class="form-control" rows="3" placeholder="Enter your full delivery address…" required></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Special Instructions (optional)</label>
+              <textarea name="notes" class="form-control" rows="2" placeholder="Allergies, extra spice, leave at door…"></textarea>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><span class="card-title">🛍️ Order Items</span></div>
+        <div class="card-body">
+          {% for item in cart_items %}
+          <div class="d-flex justify-between align-center" style="padding: 10px 0; border-bottom: 1px solid var(--border-light);">
+            <div>
+              <div style="font-weight: 600;">{{ item.name }}</div>
+              <div class="text-muted" style="font-size: 0.8rem;">{{ item.quantity }} × ₹{{ item.price }}</div>
+            </div>
+            <strong>₹{{ item.subtotal|floatformat:2 }}</strong>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary Sidebar -->
+    <div style="position: sticky; top: 80px;">
+      <div class="card">
+        <div class="card-header"><span class="card-title">Order Total</span></div>
+        <div class="card-body">
+          <div class="d-flex justify-between" style="margin-bottom: 10px;">
+            <span class="text-muted">Items ({{ cart_items|length }})</span>
+            <span>₹{{ total|floatformat:2 }}</span>
+          </div>
+          <div class="d-flex justify-between" style="margin-bottom: 16px;">
+            <span class="text-muted">Delivery</span>
+            <span class="text-success">Free</span>
+          </div>
+          <div class="d-flex justify-between" style="padding: 14px 0; border-top: 2px solid var(--border); margin-bottom: 20px;">
+            <strong>Total</strong>
+            <strong style="color: var(--brand); font-size: 1.2rem;">₹{{ total|floatformat:2 }}</strong>
+          </div>
+          <button form="checkoutForm" type="submit" class="btn btn-primary w-full btn-lg">
+            Continue to Payment 💳
+          </button>
+          <a href="{% url 'orders:cart' %}" class="btn btn-ghost w-full mt-2" style="text-align:center;">← Back to Cart</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

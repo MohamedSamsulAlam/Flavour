@@ -1,0 +1,68 @@
+{% extends 'base_public.html' %}
+{% block title %}Track Order #{{ order.id }}{% endblock %}
+{% block content %}
+<div class="public-content" style="max-width: 620px;" id="orderTracking">
+  <h1 style="margin-bottom: 6px;">Order #{{ order.id }}</h1>
+  <p class="text-muted" style="margin-bottom: 24px;">From {{ order.restaurant.name }} · Placed {{ order.created_at|timesince }} ago</p>
+
+  <div class="card" style="margin-bottom: 20px;">
+    <div class="card-header">
+      <span class="card-title">Live Status</span>
+      <span class="badge badge-{{ order.status_badge_class }}">{{ order.get_status_display }}</span>
+    </div>
+    <div class="card-body">
+      <div class="order-timeline">
+        {% for step_val, step_label, step_icon, step_desc in steps %}
+        <div class="timeline-step
+          {% if step_val == order.status %}current
+          {% elif step_val in completed_steps %}done
+          {% endif %}">
+          <div class="timeline-dot">
+            {% if step_val in completed_steps %}
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+            {% elif step_val == order.status %}
+            <span style="font-size:0.8rem;">{{ step_icon }}</span>
+            {% else %}
+            <span style="font-size:0.75rem; color:var(--text-muted);">{{ step_icon }}</span>
+            {% endif %}
+          </div>
+          <div class="timeline-content">
+            <div class="timeline-title" {% if step_val == order.status %}style="color:var(--brand);"{% elif step_val not in completed_steps %}style="color:var(--text-muted);"{% endif %}>{{ step_label }}</div>
+            <div class="timeline-desc">{{ step_desc }}</div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Order Details -->
+  <div class="card">
+    <div class="card-header"><span class="card-title">Items Ordered</span></div>
+    <div class="card-body">
+      {% for oi in order.items.all %}
+      <div class="d-flex justify-between" style="padding: 8px 0; border-bottom: 1px solid var(--border-light);">
+        <span>{{ oi.quantity }}× {{ oi.item_name }}</span>
+        <strong>₹{{ oi.subtotal|floatformat:2 }}</strong>
+      </div>
+      {% endfor %}
+      <div class="d-flex justify-between" style="padding-top: 14px;">
+        <strong>Total</strong>
+        <strong style="color: var(--brand);">₹{{ order.total_price }}</strong>
+      </div>
+      {% if order.delivery_address %}
+      <div style="margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border-light);">
+        <div class="text-muted" style="font-size: 0.78rem; margin-bottom: 4px;">Delivery Address</div>
+        <div style="font-size: 0.875rem;">{{ order.delivery_address }}</div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="d-flex gap-2 mt-3">
+    <a href="{% url 'orders:my_orders' %}" class="btn btn-secondary">← My Orders</a>
+    <a href="{% url 'customers:home' %}" class="btn btn-primary">Order Again</a>
+  </div>
+  <p class="text-muted mt-2" style="font-size:0.75rem;">🔄 This page auto-refreshes every 30 seconds.</p>
+</div>
+{% endblock %}

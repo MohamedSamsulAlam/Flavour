@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block breadcrumb %}<a href="#">{{ restaurant.name }}</a><span class="sep">›</span><span>Overview</span>{% endblock %}
+
+{% block sidebar_nav %}
+<div class="sidebar-section-label">Restaurant</div>
+<a href="{% url 'restaurants:dashboard' %}" class="nav-link active">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+  Dashboard
+</a>
+<a href="{% url 'restaurants:menu' %}" class="nav-link">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+  Menu Manager
+</a>
+<a href="{% url 'restaurants:orders' %}" class="nav-link">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+  Orders
+  {% if stats.pending_orders > 0 %}<span class="badge badge-danger" style="margin-left:auto;">{{ stats.pending_orders }}</span>{% endif %}
+</a>
+<a href="{% url 'analytics:dashboard' %}" class="nav-link">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+  Analytics
+</a>
+<div class="sidebar-section-label">Settings</div>
+<a href="{% url 'restaurants:profile_edit' %}" class="nav-link">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+  Restaurant Profile
+</a>
+<a href="/" class="nav-link">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+  View Site
+</a>
+{% endblock %}
+
+{% block content %}
+<!-- Welcome Banner -->
+<div class="d-flex justify-between align-center" style="margin-bottom: 24px; flex-wrap:wrap; gap:12px;">
+  <div>
+    <h1 style="font-size:1.4rem; margin-bottom:4px;">Good to see you, {{ request.user.username }} 👋</h1>
+    <p class="text-muted" style="font-size:0.875rem;">Here's what's happening at <strong>{{ restaurant.name }}</strong> today.</p>
+  </div>
+  <div class="d-flex gap-2">
+    <span class="badge {% if restaurant.is_open %}badge-success{% else %}badge-danger{% endif %}" style="padding: 6px 14px; font-size: 0.8rem;">
+      {% if restaurant.is_open %}● Open{% else %}● Closed{% endif %}
+    </span>
+    <a href="{% url 'restaurants:menu_add' %}" class="btn btn-primary">+ Add Menu Item</a>
+  </div>
+</div>
+
+<!-- Low Stock Alert -->
+{% if low_stock_items %}
+<div class="alert-banner warning" style="margin-bottom:20px;">
+  <span style="font-size:1.1rem;">⚠</span>
+  <strong>Low stock alert:</strong>
+  {% for item in low_stock_items %}
+    <span style="background:rgba(217,119,6,.15); padding:2px 8px; border-radius:999px; font-size:0.8rem;">{{ item.name }} ({{ item.quantity }} left)</span>{% if not forloop.last %} {% endif %}
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- Stats -->
+<div class="stat-grid">
+  <div class="stat-card">
+    <div class="stat-icon brand">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg>
+    </div>
+    <div>
+      <div class="stat-label">Total Orders</div>
+      <div class="stat-value">{{ stats.total_orders }}</div>
+      <div class="stat-sub">All time</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon warning">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    </div>
+    <div>
+      <div class="stat-label">Pending</div>
+      <div class="stat-value">{{ stats.pending_orders }}</div>
+      <div class="stat-sub">Awaiting action{% if stats.pending_orders > 0 %} <span class="notif-dot"></span>{% endif %}</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon success">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+    </div>
+    <div>
+      <div class="stat-label">Revenue</div>
+      <div class="stat-value">₹{{ stats.total_revenue|floatformat:0 }}</div>
+      <div class="stat-sub">From delivered orders</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon info">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    </div>
+    <div>
+      <div class="stat-label">Menu Items</div>
+      <div class="stat-value">{{ stats.menu_items }}</div>
+      <div class="stat-sub">On your menu</div>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Orders -->
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">Recent Orders</span>
+    <a href="{% url 'restaurants:orders' %}" class="btn btn-secondary btn-sm">View All</a>
+  </div>
+  {% if orders %}
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Customer</th>
+          <th>Items</th>
+          <th>Total</th>
+          <th>Status</th>
+          <th>Time</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in orders %}
+        <tr>
+          <td><strong>#{{ order.id }}</strong></td>
+          <td>{{ order.customer.username }}</td>
+          <td>{{ order.items.count }} item{{ order.items.count|pluralize }}</td>
+          <td><strong>₹{{ order.total_price }}</strong></td>
+          <td><span class="badge badge-{{ order.status_badge_class }}">{{ order.get_status_display }}</span></td>
+          <td class="text-muted" style="font-size:0.78rem;">{{ order.created_at|timesince }} ago</td>
+          <td>
+            <form method="post" action="{% url 'restaurants:update_order_status' order.id %}" style="display:inline;">
+              {% csrf_token %}
+              <select name="status" class="form-control" style="padding:4px 8px; font-size:0.78rem; width:auto; display:inline;" onchange="this.form.submit()">
+                {% for val, label in order.STATUS_CHOICES %}
+                <option value="{{ val }}" {% if order.status == val %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <span class="empty-icon">📦</span>
+    <h3>No orders yet</h3>
+    <p>Orders will appear here once customers start ordering from your restaurant.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,182 @@
+{% extends 'base_public.html' %}
+{% block title %}Bulk Order — {{ restaurant.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+.bulk-table { width:100%; border-collapse:collapse; }
+.bulk-table th { background:var(--bg); padding:12px 14px; text-align:left; font-size:.8rem;
+  font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:var(--text-muted);
+  border-bottom:2px solid var(--border); }
+.bulk-table td { padding:14px; border-bottom:1px solid var(--border-light); vertical-align:middle; }
+.bulk-table tr:hover td { background:var(--bg); }
+.qty-ctrl { display:flex; align-items:center; gap:8px; }
+.qty-btn { width:32px;height:32px;border:2px solid var(--border);border-radius:50%;background:var(--surface);
+  cursor:pointer;font-size:1rem;font-weight:700;line-height:1;display:flex;align-items:center;
+  justify-content:center;transition:all .15s;flex-shrink:0; }
+.qty-btn:hover { border-color:var(--brand);color:var(--brand); }
+.qty-input { width:52px;text-align:center;border:2px solid var(--border);border-radius:var(--radius);
+  padding:6px 4px;font-size:.9rem;font-weight:600; }
+.qty-input:focus { border-color:var(--brand);outline:none; }
+.item-veg { display:inline-block;width:14px;height:14px;border:2px solid #16a34a;border-radius:2px;
+  background:#dcfce7;position:relative;flex-shrink:0; }
+.item-veg::after { content:''; position:absolute;top:2px;left:2px;width:6px;height:6px;
+  border-radius:50%;background:#16a34a; }
+.section-divider { background:var(--bg);padding:10px 14px;font-weight:700;font-size:.85rem;
+  color:var(--text-muted);border-bottom:1px solid var(--border); }
+.order-summary-bar { position:fixed;bottom:0;left:0;right:0;background:var(--surface);
+  border-top:2px solid var(--border);padding:14px 24px;display:flex;
+  align-items:center;justify-content:space-between;z-index:100;
+  box-shadow:0 -4px 20px rgba(0,0,0,.08); }
+.summary-total { font-size:1.1rem;font-weight:700; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="public-content" style="max-width:900px; padding-bottom:100px;">
+  <!-- Header -->
+  <div class="card" style="margin-bottom:20px;">
+    <div class="card-body">
+      <div class="d-flex align-center gap-3">
+        <div style="width:52px;height:52px;border-radius:var(--radius-lg);background:var(--brand);
+          color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:800;flex-shrink:0;">
+          {{ restaurant.name|first|upper }}
+        </div>
+        <div>
+          <h1 style="font-size:1.3rem;margin-bottom:4px;">Bulk Order from {{ restaurant.name }}</h1>
+          <p class="text-muted" style="font-size:.875rem;">Set quantities for multiple items and add them all to your cart at once.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <form method="post" id="bulkForm">
+    {% csrf_token %}
+    <div class="card">
+      <table class="bulk-table">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th style="text-align:right;">Price</th>
+            <th style="width:140px;">Quantity</th>
+            <th style="text-align:right;">Subtotal</th>
+          </tr>
+        </thead>
+        <tbody id="bulkBody">
+          {% for category in categories %}
+          {% if category.items.all %}
+          <tr><td colspan="4" class="section-divider">{{ category.name }}</td></tr>
+          {% for item in category.items.all %}
+          {% if item.is_available %}
+          <tr class="bulk-row" data-price="{{ item.price }}" data-id="{{ item.id }}">
+            <td>
+              <div style="display:flex;align-items:center;gap:8px;">
+                {% if item.is_vegetarian %}<span class="item-veg" title="Vegetarian"></span>{% endif %}
+                <div>
+                  <div style="font-weight:600;">{{ item.name }}</div>
+                  {% if item.description %}<div class="text-muted" style="font-size:.78rem;">{{ item.description|truncatechars:60 }}</div>{% endif %}
+                  {% if item.is_low_stock %}<span class="badge badge-danger" style="font-size:.65rem;">Low Stock ({{ item.quantity }} left)</span>{% endif %}
+                </div>
+              </div>
+            </td>
+            <td style="text-align:right;font-weight:600;">₹{{ item.price }}</td>
+            <td>
+              <div class="qty-ctrl">
+                <button type="button" class="qty-btn" onclick="changeQty({{ item.id }}, -1)">−</button>
+                <input type="number" name="qty_{{ item.id }}" id="qty_{{ item.id }}"
+                  class="qty-input" value="0" min="0" max="{{ item.quantity }}"
+                  onchange="updateSubtotal({{ item.id }})">
+                <button type="button" class="qty-btn" onclick="changeQty({{ item.id }}, 1)">+</button>
+              </div>
+            </td>
+            <td style="text-align:right;font-weight:600;" id="sub_{{ item.id }}">—</td>
+          </tr>
+          {% endif %}
+          {% endfor %}
+          {% endif %}
+          {% endfor %}
+
+          {% if uncategorized %}
+          <tr><td colspan="4" class="section-divider">Other Items</td></tr>
+          {% for item in uncategorized %}
+          <tr class="bulk-row" data-price="{{ item.price }}" data-id="{{ item.id }}">
+            <td>
+              <div style="display:flex;align-items:center;gap:8px;">
+                {% if item.is_vegetarian %}<span class="item-veg" title="Vegetarian"></span>{% endif %}
+                <div>
+                  <div style="font-weight:600;">{{ item.name }}</div>
+                  {% if item.description %}<div class="text-muted" style="font-size:.78rem;">{{ item.description|truncatechars:60 }}</div>{% endif %}
+                </div>
+              </div>
+            </td>
+            <td style="text-align:right;font-weight:600;">₹{{ item.price }}</td>
+            <td>
+              <div class="qty-ctrl">
+                <button type="button" class="qty-btn" onclick="changeQty({{ item.id }}, -1)">−</button>
+                <input type="number" name="qty_{{ item.id }}" id="qty_{{ item.id }}"
+                  class="qty-input" value="0" min="0" max="{{ item.quantity }}"
+                  onchange="updateSubtotal({{ item.id }})">
+                <button type="button" class="qty-btn" onclick="changeQty({{ item.id }}, 1)">+</button>
+              </div>
+            </td>
+            <td style="text-align:right;font-weight:600;" id="sub_{{ item.id }}">—</td>
+          </tr>
+          {% endfor %}
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </form>
+</div>
+
+<!-- Sticky Bottom Bar -->
+<div class="order-summary-bar">
+  <div>
+    <div style="font-size:.8rem;color:var(--text-muted);">Selected</div>
+    <div class="summary-total">
+      <span id="selectedCount">0</span> items &nbsp;·&nbsp; ₹<span id="totalAmount">0.00</span>
+    </div>
+  </div>
+  <div style="display:flex;gap:10px;">
+    <a href="{% url 'customers:restaurant_detail' restaurant.pk %}" class="btn btn-secondary">← Back</a>
+    <button type="submit" form="bulkForm" class="btn btn-primary btn-lg">
+      Add to Cart 🛒
+    </button>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function changeQty(itemId, delta) {
+  const input = document.getElementById('qty_' + itemId);
+  const max = parseInt(input.max) || 999;
+  let val = parseInt(input.value) || 0;
+  val = Math.max(0, Math.min(max, val + delta));
+  input.value = val;
+  updateSubtotal(itemId);
+}
+
+function updateSubtotal(itemId) {
+  const row = document.querySelector(`.bulk-row[data-id="${itemId}"]`);
+  const price = parseFloat(row.dataset.price);
+  const qty = parseInt(document.getElementById('qty_' + itemId).value) || 0;
+  const subEl = document.getElementById('sub_' + itemId);
+  subEl.textContent = qty > 0 ? '₹' + (price * qty).toFixed(2) : '—';
+  subEl.style.color = qty > 0 ? 'var(--brand)' : '';
+  updateTotal();
+}
+
+function updateTotal() {
+  let count = 0, total = 0;
+  document.querySelectorAll('.bulk-row').forEach(row => {
+    const id = row.dataset.id;
+    const price = parseFloat(row.dataset.price);
+    const qty = parseInt(document.getElementById('qty_' + id).value) || 0;
+    if (qty > 0) { count += qty; total += price * qty; }
+  });
+  document.getElementById('selectedCount').textContent = count;
+  document.getElementById('totalAmount').textContent = total.toFixed(2);
+  document.querySelector('.summary-total').style.color = count > 0 ? 'var(--brand)' : '';
+}
+</script>
+{% endblock %}

@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% block title %}Menu Manager{% endblock %}
+{% block page_title %}Menu Manager{% endblock %}
+{% block breadcrumb %}<a href="{% url 'restaurants:dashboard' %}">Dashboard</a><span class="sep">›</span><span>Menu</span>{% endblock %}
+
+{% block sidebar_nav %}
+<div class="sidebar-section-label">Restaurant</div>
+<a href="{% url 'restaurants:dashboard' %}" class="nav-link">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+  Dashboard
+</a>
+<a href="{% url 'restaurants:menu' %}" class="nav-link active">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+  Menu Manager
+</a>
+<a href="{% url 'restaurants:orders' %}" class="nav-link">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg>
+  Orders
+</a>
+<a href="{% url 'analytics:dashboard' %}" class="nav-link">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+  Analytics
+</a>
+<div class="sidebar-section-label">Settings</div>
+<a href="{% url 'restaurants:profile_edit' %}" class="nav-link">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/></svg>
+  Restaurant Profile
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>Menu Manager</h1>
+    <p>Add, edit, and organise your dishes for {{ restaurant.name }}</p>
+  </div>
+  <a href="{% url 'restaurants:menu_add' %}" class="btn btn-primary">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Add Item
+  </a>
+</div>
+
+{% for category in categories %}
+{% if category.items.all %}
+<div class="card" style="margin-bottom: 20px;">
+  <div class="card-header">
+    <span class="card-title">📁 {{ category.name }}</span>
+    <span class="badge badge-secondary">{{ category.items.count }} items</span>
+  </div>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Price</th>
+          <th>Stock</th>
+          <th>Status</th>
+          <th>Flags</th>
+          <th style="text-align:right;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in category.items.all %}
+        <tr>
+          <td>
+            <div class="d-flex align-center gap-2">
+              {% if item.image %}
+              <img src="{{ item.image.url }}" alt="{{ item.name }}" style="width:40px;height:40px;border-radius:var(--radius-sm);object-fit:cover;flex-shrink:0;">
+              {% else %}
+              <div style="width:40px;height:40px;border-radius:var(--radius-sm);background:var(--brand-light);display:flex;align-items:center;justify-content:center;font-size:1.1rem;">🍽️</div>
+              {% endif %}
+              <div>
+                <div style="font-weight:600;">{{ item.name }}</div>
+                <div class="text-muted" style="font-size:0.75rem;">{{ item.description|truncatechars:40 }}</div>
+              </div>
+            </div>
+          </td>
+          <td><strong>₹{{ item.price }}</strong></td>
+          <td>
+            <span {% if item.is_low_stock %}class="text-danger fw-bold"{% endif %}>{{ item.quantity }}</span>
+            {% if item.is_low_stock %}<span class="badge badge-danger" style="font-size:0.65rem;margin-left:4px;">Low</span>{% endif %}
+          </td>
+          <td>
+            {% if item.is_available %}
+            <span class="badge badge-success">Available</span>
+            {% else %}
+            <span class="badge badge-danger">Unavailable</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if item.is_vegetarian %}<span class="badge badge-veg" style="font-size:0.65rem;">🌿 Veg</span> {% endif %}
+            {% if item.is_featured %}<span class="badge badge-warning" style="font-size:0.65rem;">⭐ Featured</span>{% endif %}
+          </td>
+          <td style="text-align:right;">
+            <div class="d-flex gap-1" style="justify-content:flex-end;">
+              <a href="{% url 'restaurants:menu_edit' item.pk %}" class="btn btn-secondary btn-sm">Edit</a>
+              <a href="{% url 'restaurants:menu_delete' item.pk %}" class="btn btn-danger btn-sm" data-confirm="Remove '{{ item.name }}' from your menu?">Delete</a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+{% endfor %}
+
+{% if uncategorized %}
+<div class="card" style="margin-bottom: 20px;">
+  <div class="card-header">
+    <span class="card-title">📋 Uncategorised Items</span>
+    <span class="badge badge-secondary">{{ uncategorized.count }} items</span>
+  </div>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr><th>Item</th><th>Price</th><th>Stock</th><th>Status</th><th style="text-align:right;">Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for item in uncategorized %}
+        <tr>
+          <td>
+            <div class="d-flex align-center gap-2">
+              {% if item.image %}
+              <img src="{{ item.image.url }}" style="width:40px;height:40px;border-radius:var(--radius-sm);object-fit:cover;">
+              {% else %}
+              <div style="width:40px;height:40px;border-radius:var(--radius-sm);background:var(--brand-light);display:flex;align-items:center;justify-content:center;">🍽️</div>
+              {% endif %}
+              <div>
+                <div style="font-weight:600;">{{ item.name }}</div>
+                <div class="text-muted" style="font-size:0.75rem;">{{ item.description|truncatechars:40 }}</div>
+              </div>
+            </div>
+          </td>
+          <td><strong>₹{{ item.price }}</strong></td>
+          <td>{{ item.quantity }}{% if item.is_low_stock %} <span class="badge badge-danger" style="font-size:0.65rem;">Low</span>{% endif %}</td>
+          <td>{% if item.is_available %}<span class="badge badge-success">Available</span>{% else %}<span class="badge badge-danger">Unavailable</span>{% endif %}</td>
+          <td style="text-align:right;">
+            <a href="{% url 'restaurants:menu_edit' item.pk %}" class="btn btn-secondary btn-sm">Edit</a>
+            <a href="{% url 'restaurants:menu_delete' item.pk %}" class="btn btn-danger btn-sm" data-confirm="Remove '{{ item.name }}'?">Delete</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+{% if not categories and not uncategorized %}
+<div class="card">
+  <div class="empty-state">
+    <span class="empty-icon">🍽️</span>
+    <h3>Your menu is empty</h3>
+    <p>Start adding dishes to showcase your restaurant.</p>
+    <a href="{% url 'restaurants:menu_add' %}" class="btn btn-primary">Add Your First Item</a>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,105 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In — Flavour</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+</head>
+<body style="margin:0; padding:0;">
+
+{% if messages %}
+<div class="messages-container">
+  {% for message in messages %}
+  <div class="alert alert-{{ message.tags }}">
+    <span>{{ message }}</span>
+    <button class="alert-close">×</button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="auth-shell">
+  <!-- Left Panel -->
+  <div class="auth-panel auth-panel-left">
+    <div class="auth-logo">
+      <div class="auth-logo-mark">F</div>
+      <span class="auth-logo-text">Flavour.</span>
+    </div>
+    <h1 class="auth-headline">Order food<br>the smart way.</h1>
+    <p class="auth-sub">Multiple restaurants, real-time tracking, and a seamless checkout experience — all in one place.</p>
+    <div class="auth-features">
+      <div class="auth-feature">
+        <div class="auth-feature-icon">🍽️</div>
+        <span>Browse menus from multiple restaurants</span>
+      </div>
+      <div class="auth-feature">
+        <div class="auth-feature-icon">⚡</div>
+        <span>Real-time order tracking</span>
+      </div>
+      <div class="auth-feature">
+        <div class="auth-feature-icon">🔒</div>
+        <span>Secure login with 2FA for operators</span>
+      </div>
+      <div class="auth-feature">
+        <div class="auth-feature-icon">📊</div>
+        <span>Analytics dashboard for restaurants</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Panel -->
+  <div class="auth-panel auth-panel-right">
+    <div class="auth-form-wrap">
+      <h2 class="auth-form-title">Welcome back</h2>
+      <p class="auth-form-sub">Sign in to your account to continue.</p>
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+        
+        <div class="form-group">
+          <label class="form-label">Username</label>
+          <input type="text" name="username" class="form-control" placeholder="Enter your username" value="{{ form.username.value|default:'' }}" required autofocus>
+          {% if form.username.errors %}
+          <span class="form-error">{{ form.username.errors.0 }}</span>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" name="password" class="form-control" placeholder="Enter your password" required>
+          {% if form.password.errors %}
+          <span class="form-error">{{ form.password.errors.0 }}</span>
+          {% endif %}
+        </div>
+
+        {% if form.non_field_errors %}
+        <div class="alert-banner warning" style="margin-bottom: 16px;">
+          ⚠ {{ form.non_field_errors.0 }}
+        </div>
+        {% endif %}
+
+        <button type="submit" class="btn btn-primary w-full btn-lg">Sign In</button>
+      </form>
+
+      <hr class="divider">
+
+      <p class="text-center" style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 12px;">Don't have an account?</p>
+      <div class="d-flex gap-2">
+        <a href="{% url 'accounts:register' %}" class="btn btn-secondary w-full">Join as Customer</a>
+        <a href="{% url 'accounts:register_restaurant' %}" class="btn btn-outline w-full">Register Restaurant</a>
+      </div>
+
+      <p class="text-center mt-3" style="font-size: 0.78rem; color: var(--text-muted);">
+        Admin? Use <a href="/admin/">/admin/</a> to manage the platform.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

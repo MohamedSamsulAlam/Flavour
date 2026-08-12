@@ -1,0 +1,102 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register — Flavour</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+</head>
+<body style="margin:0; padding:0;">
+
+{% if messages %}
+<div class="messages-container">
+  {% for message in messages %}
+  <div class="alert alert-{{ message.tags }}">
+    <span>{{ message }}</span><button class="alert-close">×</button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="auth-shell">
+  <div class="auth-panel auth-panel-left">
+    <div class="auth-logo">
+      <div class="auth-logo-mark">F</div>
+      <span class="auth-logo-text">Flavour.</span>
+    </div>
+    <h1 class="auth-headline">
+      {% if role == 'Restaurant' %}
+        List your restaurant.<br>Reach more customers.
+      {% else %}
+        Great food,<br>one click away.
+      {% endif %}
+    </h1>
+    <p class="auth-sub">
+      {% if role == 'Restaurant' %}
+        Create your restaurant account to manage menus, track orders, and grow your business with real-time analytics.
+      {% else %}
+        Sign up for free and start ordering from the best restaurants around you in minutes.
+      {% endif %}
+    </p>
+    <div class="auth-features">
+      {% if role == 'Restaurant' %}
+      <div class="auth-feature"><div class="auth-feature-icon">🍴</div><span>Manage your full menu with images</span></div>
+      <div class="auth-feature"><div class="auth-feature-icon">📦</div><span>Track orders in real-time</span></div>
+      <div class="auth-feature"><div class="auth-feature-icon">📈</div><span>Sales analytics dashboard</span></div>
+      <div class="auth-feature"><div class="auth-feature-icon">🔐</div><span>Secure login with two-factor auth</span></div>
+      {% else %}
+      <div class="auth-feature"><div class="auth-feature-icon">🛒</div><span>Easy add-to-cart experience</span></div>
+      <div class="auth-feature"><div class="auth-feature-icon">🚀</div><span>Fast, secure checkout</span></div>
+      <div class="auth-feature"><div class="auth-feature-icon">📍</div><span>Track your order live</span></div>
+      <div class="auth-feature"><div class="auth-feature-icon">💯</div><span>100% free to join</span></div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="auth-panel auth-panel-right">
+    <div class="auth-form-wrap">
+      <h2 class="auth-form-title">Create {{ role }} Account</h2>
+      <p class="auth-form-sub">Fill in the details below to get started.</p>
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="form-group">
+          <label class="form-label">{{ field.label }}</label>
+          <input
+            type="{% if 'password' in field.html_name %}password{% elif field.html_name == 'email' %}email{% else %}text{% endif %}"
+            name="{{ field.html_name }}"
+            class="form-control {% if field.errors %}error{% endif %}"
+            placeholder="{{ field.label }}"
+            value="{% if field.html_name != 'password1' and field.html_name != 'password2' %}{{ field.value|default:'' }}{% endif %}"
+          >
+          {% if field.errors %}<span class="form-error">{{ field.errors.0 }}</span>{% endif %}
+          {% if field.help_text %}<span class="form-hint">{{ field.help_text }}</span>{% endif %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary w-full btn-lg">Create Account</button>
+      </form>
+
+      <hr class="divider">
+      <p class="text-center" style="font-size:0.875rem; color:var(--text-muted);">
+        Already have an account? <a href="{% url 'accounts:login' %}">Sign in</a>
+      </p>
+      {% if role == 'Customer' %}
+      <p class="text-center mt-2" style="font-size:0.875rem; color:var(--text-muted);">
+        Own a restaurant? <a href="{% url 'accounts:register_restaurant' %}">Register it here</a>
+      </p>
+      {% else %}
+      <p class="text-center mt-2" style="font-size:0.875rem; color:var(--text-muted);">
+        Ordering for yourself? <a href="{% url 'accounts:register' %}">Customer sign up</a>
+      </p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

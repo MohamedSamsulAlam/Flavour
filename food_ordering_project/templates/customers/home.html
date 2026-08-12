@@ -1,0 +1,116 @@
+{% extends 'base_public.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<section class="hero-section">
+  <h1 class="hero-title">Hungry? We've got you. 🍕</h1>
+  <p class="hero-sub">Order from your favourite local restaurants, delivered fast.</p>
+  <form class="hero-search" method="get" action="/">
+    <input type="text" name="q" placeholder="Search restaurants or cuisines…" value="{{ search }}">
+    <button type="submit">Search</button>
+  </form>
+</section>
+
+<div class="public-content">
+
+  <!-- Cuisine Filter + Map Button -->
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
+    <div class="cuisine-filters" style="margin-bottom:0;">
+      <a href="/" class="cuisine-pill {% if not cuisine_filter %}active{% endif %}">🍽️ All</a>
+      {% for val, label in cuisine_choices %}
+      <a href="?cuisine={{ val }}{% if search %}&q={{ search }}{% endif %}" class="cuisine-pill {% if cuisine_filter == val %}active{% endif %}">{{ label }}</a>
+      {% endfor %}
+    </div>
+    <a href="{% url 'customers:map' %}" class="btn btn-secondary" style="white-space:nowrap;">
+      🗺️ Map View
+    </a>
+  </div>
+
+  <!-- Featured Items -->
+  {% if featured_items and not cuisine_filter and not search %}
+  <div class="section-heading"><h2>✨ Featured Items</h2></div>
+  <div class="menu-items-grid" style="margin-bottom: 36px;">
+    {% for item in featured_items %}
+    <div class="menu-item-card">
+      <div class="menu-item-img">
+        {% if item.image %}
+          <img src="{{ item.image.url }}" alt="{{ item.name }}">
+        {% else %}
+          <div class="menu-item-img-placeholder">🍴</div>
+        {% endif %}
+      </div>
+      <div class="menu-item-body">
+        <div class="menu-item-name">{{ item.name }}</div>
+        <div class="menu-item-desc">{{ item.description|truncatechars:70 }}</div>
+        <div class="menu-item-footer">
+          <span class="menu-item-price">₹{{ item.price }}</span>
+          <div class="d-flex align-center gap-1">
+            {% if item.is_vegetarian %}<span class="badge badge-veg">🌿 Veg</span>{% endif %}
+            <a href="{% url 'customers:restaurant_detail' item.restaurant.pk %}" class="btn btn-primary btn-sm" data-add-cart="{{ item.id }}">Add +</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Restaurants -->
+  <div class="section-heading">
+    <h2>
+      {% if search %}Results for "{{ search }}"
+      {% elif cuisine_filter %}{{ cuisine_filter|title }} Restaurants
+      {% else %}All Restaurants
+      {% endif %}
+    </h2>
+  </div>
+
+  {% if restaurants %}
+  <div class="restaurant-grid">
+    {% for restaurant in restaurants %}
+    <a href="{% url 'customers:restaurant_detail' restaurant.pk %}" style="text-decoration:none;">
+      <div class="restaurant-card">
+        <div class="restaurant-cover">
+          {% if restaurant.cover_image %}
+            <img src="{{ restaurant.cover_image.url }}" alt="{{ restaurant.name }}">
+          {% else %}
+            <div class="restaurant-cover-placeholder">🏪</div>
+          {% endif %}
+          {% if restaurant.logo %}
+            <img src="{{ restaurant.logo.url }}" alt="logo" class="restaurant-logo">
+          {% else %}
+            <div class="restaurant-logo-placeholder">{{ restaurant.name|first|upper }}</div>
+          {% endif %}
+        </div>
+        <div class="restaurant-info">
+          <div class="restaurant-name">{{ restaurant.name }}</div>
+          <div class="restaurant-meta">
+            <span class="restaurant-meta-item">
+              <span class="status-dot {% if restaurant.is_open %}open{% else %}closed{% endif %}"></span>
+              {% if restaurant.is_open %}Open{% else %}Closed{% endif %}
+            </span>
+            <span class="restaurant-meta-item">⏱ {{ restaurant.delivery_time }} min</span>
+            <span class="restaurant-meta-item">⭐ {{ restaurant.rating }}</span>
+            <span class="restaurant-meta-item">{{ restaurant.get_cuisine_display }}</span>
+          </div>
+          {% if restaurant.minimum_order > 0 %}
+          <span class="badge badge-secondary" style="font-size:0.7rem;">Min. order ₹{{ restaurant.minimum_order }}</span>
+          {% endif %}
+        </div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <span class="empty-icon">🔍</span>
+    <h3>No restaurants found</h3>
+    <p>Try a different search or browse all restaurants.</p>
+    <a href="/" class="btn btn-primary">View All</a>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

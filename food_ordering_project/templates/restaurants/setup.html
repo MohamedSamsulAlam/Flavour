@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+{% block title %}{% if edit %}Edit Profile{% else %}Setup Restaurant{% endif %}{% endblock %}
+{% block page_title %}{% if edit %}Restaurant Profile{% else %}Setup Your Restaurant{% endif %}{% endblock %}
+
+{% block sidebar_nav %}
+<a href="{% url 'restaurants:dashboard' %}" class="nav-link">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+  Dashboard
+</a>
+<a href="{% url 'restaurants:menu' %}" class="nav-link">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg>
+  Menu Manager
+</a>
+<a href="{% url 'restaurants:orders' %}" class="nav-link">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/></svg>
+  Orders
+</a>
+<a href="{% url 'analytics:dashboard' %}" class="nav-link">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+  Analytics
+</a>
+<a href="{% url 'restaurants:profile_edit' %}" class="nav-link active">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/></svg>
+  Restaurant Profile
+</a>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+#location-map { height:260px;border-radius:var(--radius);border:2px solid var(--border);margin-top:10px;cursor:crosshair; }
+.map-hint { font-size:.8rem;color:var(--text-muted);margin-top:6px;display:flex;align-items:center;gap:6px; }
+</style>
+{% endblock %}
+
+{% block content %}
+{% if not edit %}
+<div style="max-width:660px; margin: 0 auto 24px;">
+  <div style="background: linear-gradient(135deg, var(--brand) 0%, #c73d0f 100%); border-radius: var(--radius-lg); padding: 28px 32px; color:#fff; margin-bottom: 24px;">
+    <h2 style="font-size:1.4rem; margin-bottom:6px; color:#fff;">Welcome! Let's set up your restaurant. 🍽️</h2>
+    <p style="color:rgba(255,255,255,.85); font-size:0.9rem;">Complete your profile so customers can find and order from you.</p>
+  </div>
+</div>
+{% endif %}
+
+<div style="max-width: 660px;">
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">{% if edit %}Update Restaurant Profile{% else %}Restaurant Details{% endif %}</span>
+    </div>
+    <div class="card-body">
+      <form method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+
+        <div class="form-group">
+          <label class="form-label">Restaurant Name *</label>
+          <input type="text" name="name" class="form-control" placeholder="Your restaurant name" value="{{ form.name.value|default:'' }}" required>
+          {% if form.name.errors %}<span class="form-error">{{ form.name.errors.0 }}</span>{% endif %}
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea name="description" class="form-control" placeholder="Describe your restaurant, specialties, ambience…" rows="3">{{ form.description.value|default:'' }}</textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Cuisine Type *</label>
+            <select name="cuisine" class="form-control">
+              {% for val, label in form.cuisine.field.choices %}
+              <option value="{{ val }}" {% if form.cuisine.value == val %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone Number</label>
+            <input type="text" name="phone" class="form-control" placeholder="+91 00000 00000" value="{{ form.phone.value|default:'' }}">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Address *</label>
+          <textarea name="address" class="form-control" placeholder="Full address" rows="2">{{ form.address.value|default:'' }}</textarea>
+          {% if form.address.errors %}<span class="form-error">{{ form.address.errors.0 }}</span>{% endif %}
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Estimated Delivery Time (min)</label>
+            <input type="number" name="delivery_time" class="form-control" placeholder="30" value="{{ form.delivery_time.value|default:'30' }}">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Minimum Order (₹)</label>
+            <input type="number" name="minimum_order" class="form-control" placeholder="0.00" step="0.01" value="{{ form.minimum_order.value|default:'0.00' }}">
+          </div>
+        </div>
+
+        <!-- Map Location -->
+        <div class="form-group" style="margin-top:4px;">
+          <label class="form-label">📍 Restaurant Location on Map <span style="font-weight:400;color:var(--text-muted);">(optional)</span></label>
+          <div class="form-row">
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label" style="font-size:.8rem;">Latitude</label>
+              <input type="number" name="latitude" id="latInput" class="form-control" placeholder="e.g. 13.082680" step="any" value="{{ form.latitude.value|default:'' }}">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label" style="font-size:.8rem;">Longitude</label>
+              <input type="number" name="longitude" id="lngInput" class="form-control" placeholder="e.g. 80.270721" step="any" value="{{ form.longitude.value|default:'' }}">
+            </div>
+          </div>
+          <div id="location-map"></div>
+          <p class="map-hint">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Click anywhere on the map to set your restaurant's location, or type coordinates manually.
+          </p>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Restaurant Logo</label>
+            <input type="file" name="logo" class="form-control" accept="image/*" data-preview="logoPreview">
+            {% if form.instance.logo %}<img src="{{ form.instance.logo.url }}" id="logoPreview" class="img-preview" style="max-height:80px; width:auto; margin-top:8px;">{% else %}<img id="logoPreview" class="img-preview hidden">{% endif %}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Cover Image</label>
+            <input type="file" name="cover_image" class="form-control" accept="image/*" data-preview="coverPreview">
+            {% if form.instance.cover_image %}<img src="{{ form.instance.cover_image.url }}" id="coverPreview" class="img-preview">{% else %}<img id="coverPreview" class="img-preview hidden">{% endif %}
+          </div>
+        </div>
+
+        <div class="d-flex gap-2" style="justify-content:flex-end; margin-top:8px;">
+          {% if edit %}<a href="{% url 'restaurants:dashboard' %}" class="btn btn-secondary">Cancel</a>{% endif %}
+          <button type="submit" class="btn btn-primary btn-lg">
+            {% if edit %}Save Changes{% else %}Create Restaurant →{% endif %}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const latInput = document.getElementById('latInput');
+const lngInput = document.getElementById('lngInput');
+const initLat = parseFloat(latInput.value) || 13.0827;
+const initLng = parseFloat(lngInput.value) || 80.2707;
+
+const map = L.map('location-map').setView([initLat, initLng], latInput.value ? 14 : 5);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap', maxZoom: 18
+}).addTo(map);
+
+let marker = null;
+if (latInput.value && lngInput.value) {
+  marker = L.marker([initLat, initLng]).addTo(map);
+}
+
+map.on('click', function(e) {
+  const { lat, lng } = e.latlng;
+  latInput.value = lat.toFixed(6);
+  lngInput.value = lng.toFixed(6);
+  if (marker) map.removeLayer(marker);
+  marker = L.marker([lat, lng]).addTo(map);
+});
+
+function syncMapFromInputs() {
+  const lat = parseFloat(latInput.value);
+  const lng = parseFloat(lngInput.value);
+  if (!isNaN(lat) && !isNaN(lng)) {
+    map.setView([lat, lng], 14);
+    if (marker) map.removeLayer(marker);
+    marker = L.marker([lat, lng]).addTo(map);
+  }
+}
+latInput.addEventListener('change', syncMapFromInputs);
+lngInput.addEventListener('change', syncMapFromInputs);
+</script>
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block title %}Orders{% endblock %}
+{% block page_title %}Orders{% endblock %}
+{% block breadcrumb %}<a href="{% url 'restaurants:dashboard' %}">Dashboard</a><span class="sep">›</span><span>Orders</span>{% endblock %}
+
+{% block sidebar_nav %}
+<div class="sidebar-section-label">Restaurant</div>
+<a href="{% url 'restaurants:dashboard' %}" class="nav-link">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+  Dashboard
+</a>
+<a href="{% url 'restaurants:menu' %}" class="nav-link">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg>
+  Menu Manager
+</a>
+<a href="{% url 'restaurants:orders' %}" class="nav-link active">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/></svg>
+  Orders
+</a>
+<a href="{% url 'analytics:dashboard' %}" class="nav-link">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+  Analytics
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>Orders</h1>
+    <p>Manage and track all incoming orders for {{ restaurant.name }}</p>
+  </div>
+</div>
+
+<!-- Status Filters -->
+<div class="filter-tabs" style="margin-bottom: 20px;">
+  <a href="{% url 'restaurants:orders' %}" class="filter-tab {% if not status_filter %}active{% endif %}">All Orders</a>
+  <a href="?status=pending" class="filter-tab {% if status_filter == 'pending' %}active{% endif %}">Pending</a>
+  <a href="?status=confirmed" class="filter-tab {% if status_filter == 'confirmed' %}active{% endif %}">Confirmed</a>
+  <a href="?status=preparing" class="filter-tab {% if status_filter == 'preparing' %}active{% endif %}">Preparing</a>
+  <a href="?status=ready" class="filter-tab {% if status_filter == 'ready' %}active{% endif %}">Ready</a>
+  <a href="?status=delivered" class="filter-tab {% if status_filter == 'delivered' %}active{% endif %}">Delivered</a>
+  <a href="?status=cancelled" class="filter-tab {% if status_filter == 'cancelled' %}active{% endif %}">Cancelled</a>
+</div>
+
+<div class="card">
+  {% if orders %}
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Order #</th>
+          <th>Customer</th>
+          <th>Items</th>
+          <th>Total</th>
+          <th>Delivery Address</th>
+          <th>Status</th>
+          <th>Placed</th>
+          <th>Update Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in orders %}
+        <tr>
+          <td><strong style="font-family:var(--font-display);">#{{ order.id }}</strong></td>
+          <td>
+            <div style="font-weight:600;">{{ order.customer.username }}</div>
+            <div class="text-muted" style="font-size:0.75rem;">{{ order.customer.email }}</div>
+          </td>
+          <td>
+            {% for oi in order.items.all %}
+            <div style="font-size:0.8rem;">{{ oi.quantity }}× {{ oi.item_name }}</div>
+            {% endfor %}
+          </td>
+          <td><strong>₹{{ order.total_price }}</strong></td>
+          <td style="font-size:0.78rem; color:var(--text-muted); max-width:150px;">{{ order.delivery_address|truncatechars:50 }}</td>
+          <td><span class="badge badge-{{ order.status_badge_class }}">{{ order.get_status_display }}</span></td>
+          <td class="text-muted" style="font-size:0.78rem; white-space:nowrap;">{{ order.created_at|date:"d M, H:i" }}</td>
+          <td>
+            <form method="post" action="{% url 'restaurants:update_order_status' order.id %}">
+              {% csrf_token %}
+              <select name="status" class="form-control" style="padding:5px 8px;font-size:0.78rem;width:auto;" onchange="this.form.submit()">
+                {% for val, label in order.STATUS_CHOICES %}
+                <option value="{{ val }}" {% if order.status == val %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <span class="empty-icon">📦</span>
+    <h3>No orders found</h3>
+    <p>{% if status_filter %}No {{ status_filter }} orders at the moment.{% else %}Orders will appear here once customers start ordering.{% endif %}</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
