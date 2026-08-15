@@ -21,21 +21,25 @@ def get_list_env(name, default=''):
 
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-change-me-in-production')
-DEBUG = get_bool_env('DEBUG', False)
-ALLOWED_HOSTS = ["*"]
+DEBUG = get_bool_env('DEBUG', True)
+ALLOWED_HOSTS = get_list_env('ALLOWED_HOSTS', 'localhost,127.0.0.1,0.0.0.0')
+CSRF_TRUSTED_ORIGINS = get_list_env(
+    'CSRF_TRUSTED_ORIGINS',
+    'http://localhost:8000,http://127.0.0.1:8000'
+)
 
-CSRF_TRUSTED_ORIGINS = [
-    "https://flavour-food-ordering.onrender.com"
-]
+SECURE_SSL_REDIRECT = get_bool_env('SECURE_SSL_REDIRECT', False)
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https') if get_bool_env('USE_X_FORWARDED_PROTO', False) else None
 
 if not DEBUG:
-    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-    SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
+
+if SECURE_SSL_REDIRECT:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
