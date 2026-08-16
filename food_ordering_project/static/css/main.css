@@ -1825,13 +1825,33 @@ table.data-table {
 
 /* 2. Desktop vs Mobile Views for Tables & Cards */
 .desktop-only-table { display: block; }
+.desktop-only-orders { display: block; }
 .mobile-only-orders-cards { display: none; }
 .mobile-only-menu-cards { display: none; }
 
 @media (max-width: 768px) {
   .desktop-only-table { display: none !important; }
-  .mobile-only-orders-cards { display: flex !important; flex-direction: column; gap: 14px; padding: 12px; }
-  .mobile-only-menu-cards { display: flex !important; flex-direction: column; gap: 12px; padding: 12px; }
+  .desktop-only-orders { display: none !important; }
+  .mobile-only-orders-cards {
+    display: flex !important;
+    flex-direction: column;
+    gap: 14px;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+  .mobile-only-menu-cards {
+    display: flex !important;
+    flex-direction: column;
+    gap: 12px;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
 }
 
 /* 3. Mobile Order Cards */
@@ -1839,11 +1859,15 @@ table.data-table {
   background: var(--card-bg, #ffffff);
   border: 1px solid var(--border, #e5e7eb);
   border-radius: var(--radius, 12px);
-  padding: 14px 16px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .mobile-order-header {
@@ -1851,51 +1875,91 @@ table.data-table {
   justify-content: space-between;
   align-items: flex-start;
   gap: 10px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.mobile-order-user-info {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .mobile-order-id {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 1.05rem;
+  color: var(--text-primary);
 }
 
 .mobile-order-customer {
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.92rem;
+  color: var(--text-primary);
   margin-top: 2px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .mobile-order-email {
   color: var(--text-muted, #6b7280);
-  font-size: 0.76rem;
+  font-size: 0.78rem;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.mobile-order-status-badge-wrap {
+  flex-shrink: 0;
+  text-align: right;
 }
 
 .mobile-order-section-title {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
   color: var(--text-muted, #6b7280);
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .mobile-order-items {
-  background: var(--content-bg, #f9fafb);
+  background: var(--content-bg, #f8fafc);
   border-radius: var(--radius-sm, 8px);
-  padding: 10px 12px;
+  padding: 12px 14px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .mobile-order-item-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.84rem;
+  font-size: 0.88rem;
+  color: var(--text-primary);
   padding: 3px 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .mobile-order-address {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: var(--text-secondary, #4b5563);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.mobile-order-address-text {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.4;
+  margin-top: 2px;
 }
 
 .mobile-order-footer {
@@ -1903,15 +1967,32 @@ table.data-table {
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  padding-top: 10px;
+  padding-top: 12px;
   border-top: 1px solid var(--border, #e5e7eb);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.mobile-order-total {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.mobile-order-price {
+  font-size: 1.15rem;
+  color: var(--brand, #ea580c);
+  font-weight: 700;
 }
 
 .mobile-order-status-form select {
   padding: 6px 10px;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   width: auto;
   border-radius: var(--radius-sm, 6px);
+  max-width: 160px;
 }
 
 /* 4. Mobile Menu Cards */
@@ -1924,6 +2005,10 @@ table.data-table {
   flex-direction: column;
   gap: 10px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .mobile-menu-header {
@@ -1999,6 +2084,14 @@ table.data-table {
 }
 
 /* 5. Filter Tabs Scroll on Mobile */
+.filter-tabs-container {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  margin-bottom: 20px;
+  box-sizing: border-box;
+}
+
 @media (max-width: 768px) {
   .filter-tabs {
     display: flex !important;
@@ -2008,6 +2101,10 @@ table.data-table {
     scrollbar-width: none;
     padding: 6px !important;
     gap: 6px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
   }
   .filter-tabs::-webkit-scrollbar { display: none; }
   .filter-tab {
