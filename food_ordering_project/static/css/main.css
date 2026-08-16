@@ -1121,25 +1121,54 @@ table.data-table {
 
 /* ── Empty State ── */
 .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
-  padding: 60px 24px;
+  padding: 48px 20px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  margin: 0 auto;
 }
 
 .empty-icon {
   font-size: 4rem;
   margin-bottom: 16px;
   display: block;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .empty-state h3 {
   font-size: 1.1rem;
+  font-weight: 700;
   margin-bottom: 8px;
+  text-align: center;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .empty-state p {
   color: var(--text-muted);
   font-size: 0.9rem;
-  margin-bottom: 20px;
+  margin-bottom: 0;
+  text-align: center;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* ── Low Stock Alert ── */
@@ -2120,51 +2149,6 @@ table.data-table {
 }
 
 /* ── Empty State Centering Fix ── */
-.empty-state {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  justify-content: center !important;
-  text-align: center !important;
-  padding: 48px 20px !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  min-width: 0 !important;
-  box-sizing: border-box !important;
-  margin: 0 auto !important;
-}
-
-.empty-icon {
-  font-size: 4rem;
-  margin-bottom: 16px;
-  display: block;
-  text-align: center;
-}
-
-.empty-state h3 {
-  font-size: 1.1rem;
-  font-weight: 700;
-  margin-bottom: 8px;
-  text-align: center;
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-  overflow-wrap: anywhere;
-  word-break: break-word;
-}
-
-.empty-state p {
-  color: var(--text-muted);
-  font-size: 0.9rem;
-  margin-bottom: 0;
-  text-align: center;
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-  overflow-wrap: anywhere;
-  word-break: break-word;
-}
-
 .empty-orders-card {
   width: 100% !important;
   max-width: 100% !important;
