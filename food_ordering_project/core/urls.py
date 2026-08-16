@@ -10,4 +10,8 @@ urlpatterns = [
     path('orders/', include('apps.orders.urls', namespace='orders')),
     path('analytics/', include('apps.analytics.urls', namespace='analytics')),
     path('', include('apps.customers.urls', namespace='customers')),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]
+
+if settings.DEBUG:
+    urlpatterns += static('/media/media/', document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

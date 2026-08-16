@@ -36,7 +36,7 @@
     <div class="menu-item-card">
       <div class="menu-item-img">
         {% if item.image %}
-          <img src="{{ item.image.url }}" alt="{{ item.name }}">
+          <img src="{{ item.image.url }}" alt="{{ item.name }}" loading="lazy" onerror="this.onerror=null;this.parentElement.innerHTML='<div class=\'menu-item-img-placeholder\'>🍴</div>';">
         {% else %}
           <div class="menu-item-img-placeholder">🍴</div>
         {% endif %}
@@ -74,12 +74,12 @@
       <div class="restaurant-card">
         <div class="restaurant-cover">
           {% if restaurant.cover_image %}
-            <img src="{{ restaurant.cover_image.url }}" alt="{{ restaurant.name }}">
+            <img src="{{ restaurant.cover_image.url }}" alt="{{ restaurant.name }}" loading="lazy" onerror="this.onerror=null;this.parentElement.innerHTML='<div class=\'restaurant-cover-placeholder\'>🏪</div>';">
           {% else %}
             <div class="restaurant-cover-placeholder">🏪</div>
           {% endif %}
           {% if restaurant.logo %}
-            <img src="{{ restaurant.logo.url }}" alt="logo" class="restaurant-logo">
+            <img src="{{ restaurant.logo.url }}" alt="logo" class="restaurant-logo" loading="lazy" onerror="this.onerror=null;this.parentElement.innerHTML='<div class=\'restaurant-logo-placeholder\'>{{ restaurant.name|first|upper }}</div>';">
           {% else %}
             <div class="restaurant-logo-placeholder">{{ restaurant.name|first|upper }}</div>
           {% endif %}

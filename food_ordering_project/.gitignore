@@ -6,4 +6,5 @@ staticfiles/
 .venv/
 venv/
 *.sqlite3
+*.log
 media/uploads/

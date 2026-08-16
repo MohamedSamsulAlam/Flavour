@@ -22,11 +22,19 @@ def get_list_env(name, default=''):
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-change-me-in-production')
 DEBUG = get_bool_env('DEBUG', True)
-ALLOWED_HOSTS = get_list_env('ALLOWED_HOSTS', 'localhost,127.0.0.1,0.0.0.0')
+ALLOWED_HOSTS = get_list_env('ALLOWED_HOSTS', 'localhost,127.0.0.1,0.0.0.0,testserver')
 CSRF_TRUSTED_ORIGINS = get_list_env(
     'CSRF_TRUSTED_ORIGINS',
-    'http://localhost:8000,http://127.0.0.1:8000'
+    'http://localhost:8000,http://127.0.0.1:8000,https://flavour-food-ordering.onrender.com'
 )
+
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME', '').strip()
+if RENDER_EXTERNAL_HOSTNAME:
+    if RENDER_EXTERNAL_HOSTNAME not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+    render_origin = f'https://{RENDER_EXTERNAL_HOSTNAME}'
+    if render_origin not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append(render_origin)
 
 SECURE_SSL_REDIRECT = get_bool_env('SECURE_SSL_REDIRECT', False)
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https') if get_bool_env('USE_X_FORWARDED_PROTO', False) else None

@@ -1,32 +1,6 @@
 import json
-import time
-from pathlib import Path
-
-from django.conf import settings
 from django.shortcuts import render, get_object_or_404
 from apps.restaurants.models import Restaurant, MenuItem
-import json
-
-DEBUG_LOG_PATH = Path(settings.BASE_DIR).parent / 'debug-2ac106.log'
-
-
-def _debug_log(location, message, data, hypothesis_id):
-    payload = {
-        'sessionId': '2ac106',
-        'runId': 'home-view',
-        'hypothesisId': hypothesis_id,
-        'location': location,
-        'message': message,
-        'data': data,
-        'timestamp': int(time.time() * 1000),
-    }
-    # #region agent log
-    try:
-        with DEBUG_LOG_PATH.open('a', encoding='utf-8') as log_file:
-            log_file.write(json.dumps(payload) + '\n')
-    except OSError:
-        pass
-    # #endregion
 
 
 def home(request):
@@ -40,27 +14,6 @@ def home(request):
 
     cuisine_choices = Restaurant.CUISINE_CHOICES
     featured = MenuItem.objects.filter(is_featured=True, is_available=True).select_related('restaurant')[:6]
-
-    image_samples = []
-    for item in featured[:3]:
-        if item.image:
-            image_samples.append({
-                'item_id': item.pk,
-                'db_path': item.image.name,
-                'url': item.image.url,
-            })
-    # #region agent log
-    _debug_log(
-        'customers/views.py:home',
-        'Home page image URL samples',
-        {
-            'storage_backend': settings.STORAGES['default']['BACKEND'],
-            'media_url': settings.MEDIA_URL,
-            'image_samples': image_samples,
-        },
-        'B',
-    )
-    # #endregion
 
     return render(request, 'customers/home.html', {
         'restaurants': restaurants,
