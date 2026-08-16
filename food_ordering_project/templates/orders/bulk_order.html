@@ -52,7 +52,8 @@
   <form method="post" id="bulkForm">
     {% csrf_token %}
     <div class="card">
-      <table class="bulk-table">
+      <div class="table-wrap">
+        <table class="bulk-table">
         <thead>
           <tr>
             <th>Item</th>
@@ -121,9 +122,9 @@
             <td style="text-align:right;font-weight:600;" id="sub_{{ item.id }}">—</td>
           </tr>
           {% endfor %}
-          {% endif %}
         </tbody>
       </table>
+      </div>
     </div>
   </form>
 </div>

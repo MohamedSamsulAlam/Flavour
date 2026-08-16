@@ -806,7 +806,7 @@ table.data-table {
 /* ── Restaurant Cards (Customer View) ── */
 .restaurant-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
   gap: 20px;
 }
 
@@ -906,7 +906,7 @@ table.data-table {
 
 .menu-items-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr));
   gap: 16px;
   margin-bottom: 28px;
 }
@@ -1269,8 +1269,19 @@ table.data-table {
 .cuisine-filters {
   display: flex;
   gap: 8px;
-  flex-wrap: wrap;
-  padding: 20px 0;
+  overflow-x: auto;
+  padding: 16px 0;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  flex-wrap: nowrap;
+}
+.cuisine-filters::-webkit-scrollbar { display: none; }
+
+@media (min-width: 900px) {
+  .cuisine-filters {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
 }
 
 .cuisine-pill {
@@ -1284,6 +1295,7 @@ table.data-table {
   cursor: pointer;
   transition: all var(--transition);
   text-decoration: none;
+  white-space: nowrap;
 }
 .cuisine-pill:hover { border-color: var(--brand); color: var(--brand); background: var(--brand-pale); }
 .cuisine-pill.active { background: var(--brand); color: #fff; border-color: var(--brand); }
@@ -1457,17 +1469,24 @@ table.data-table {
   .page-content { padding: 14px; }
   .public-nav-inner {
     padding: 10px 14px;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
   }
-  .public-nav-inner .btn,
+  .public-nav-inner .btn {
+    width: auto;
+    padding: 6px 12px;
+    font-size: 0.78rem;
+  }
   .public-nav-inner .cart-btn {
-    width: 100%;
-    justify-content: center;
+    width: 36px;
+    height: 36px;
   }
   .hero-section {
     padding: 40px 16px;
   }
-  .hero-title { font-size: 2.2rem; }
-  .hero-sub { font-size: 1rem; }
+  .hero-title { font-size: clamp(1.75rem, 5vw + 1rem, 2.5rem); }
+  .hero-sub { font-size: 0.95rem; }
   .section-heading { align-items: flex-start; }
   .section-heading h2 { white-space: normal; }
   .filter-tabs { overflow-x: auto; flex-wrap: nowrap; }
@@ -1501,15 +1520,12 @@ table.data-table {
   .card-header {
     padding: 16px !important;
   }
-  .btn,
-  .btn-sm,
-  .btn-lg {
+  .btn-block,
+  .auth-panel .btn {
     width: 100%;
   }
-  .btn + .btn,
-  .btn + a,
-  a + .btn {
-    margin-top: 8px;
+  .btn-sm {
+    width: auto;
   }
   .auth-panel {
     padding: 28px 18px;

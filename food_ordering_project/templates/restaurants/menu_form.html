@@ -88,7 +88,7 @@
           </div>
         </div>
 
-        <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px;">
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 20px;">
           <label class="form-check" style="background:var(--content-bg); padding: 12px; border-radius:var(--radius); border:1.5px solid var(--border);">
             <input type="checkbox" name="is_available" {% if form.is_available.value %}checked{% endif %}>
             <div>
