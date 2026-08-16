@@ -48,7 +48,8 @@
     <span class="card-title">📁 {{ category.name }}</span>
     <span class="badge badge-secondary">{{ category.items.count }} items</span>
   </div>
-  <div class="table-wrap">
+  <!-- Desktop Table View -->
+  <div class="desktop-only-table table-wrap">
     <table class="data-table">
       <thead>
         <tr>
@@ -103,6 +104,55 @@
       </tbody>
     </table>
   </div>
+
+  <!-- Mobile Responsive Menu Cards View -->
+  <div class="mobile-only-menu-cards">
+    {% for item in category.items.all %}
+    <div class="mobile-menu-card">
+      <div class="mobile-menu-header">
+        {% if item.image %}
+        <img src="{{ item.image.url }}" alt="{{ item.name }}" class="mobile-menu-img" onerror="this.onerror=null;this.outerHTML='<div class=\'mobile-menu-img-placeholder\'>🍽️</div>';">
+        {% else %}
+        <div class="mobile-menu-img-placeholder">🍽️</div>
+        {% endif %}
+        <div class="mobile-menu-info">
+          <div class="mobile-menu-title-row">
+            <span class="mobile-menu-title">{{ item.name }}</span>
+            {% if item.is_available %}
+            <span class="badge badge-success" style="font-size:0.7rem;">Available</span>
+            {% else %}
+            <span class="badge badge-danger" style="font-size:0.7rem;">Unavailable</span>
+            {% endif %}
+          </div>
+          {% if item.description %}
+          <div class="mobile-menu-desc">{{ item.description|truncatechars:70 }}</div>
+          {% endif %}
+          <div class="mobile-menu-badges">
+            {% if item.is_vegetarian %}<span class="badge badge-veg" style="font-size:0.65rem;">🌿 Veg</span>{% endif %}
+            {% if item.is_featured %}<span class="badge badge-warning" style="font-size:0.65rem;">⭐ Featured</span>{% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="mobile-menu-meta">
+        <div>
+          <span class="text-muted" style="font-size:0.75rem;">Price: </span>
+          <strong>₹{{ item.price }}</strong>
+        </div>
+        <div>
+          <span class="text-muted" style="font-size:0.75rem;">Stock: </span>
+          <strong {% if item.is_low_stock %}class="text-danger"{% endif %}>{{ item.quantity }}</strong>
+          {% if item.is_low_stock %}<span class="badge badge-danger" style="font-size:0.62rem;margin-left:2px;">Low</span>{% endif %}
+        </div>
+      </div>
+
+      <div class="mobile-menu-actions">
+        <a href="{% url 'restaurants:menu_edit' item.pk %}" class="btn btn-secondary btn-sm" style="flex:1;text-align:center;">Edit Item</a>
+        <a href="{% url 'restaurants:menu_delete' item.pk %}" class="btn btn-danger btn-sm" style="flex:1;text-align:center;" data-confirm="Remove '{{ item.name }}' from your menu?">Delete</a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
 </div>
 {% endif %}
 {% endfor %}
@@ -113,7 +163,7 @@
     <span class="card-title">📋 Uncategorised Items</span>
     <span class="badge badge-secondary">{{ uncategorized.count }} items</span>
   </div>
-  <div class="table-wrap">
+  <div class="desktop-only-table table-wrap">
     <table class="data-table">
       <thead>
         <tr><th>Item</th><th>Price</th><th>Stock</th><th>Status</th><th style="text-align:right;">Actions</th></tr>
@@ -145,6 +195,50 @@
         {% endfor %}
       </tbody>
     </table>
+  </div>
+
+  <div class="mobile-only-menu-cards">
+    {% for item in uncategorized %}
+    <div class="mobile-menu-card">
+      <div class="mobile-menu-header">
+        {% if item.image %}
+        <img src="{{ item.image.url }}" alt="{{ item.name }}" class="mobile-menu-img" onerror="this.onerror=null;this.outerHTML='<div class=\'mobile-menu-img-placeholder\'>🍽️</div>';">
+        {% else %}
+        <div class="mobile-menu-img-placeholder">🍽️</div>
+        {% endif %}
+        <div class="mobile-menu-info">
+          <div class="mobile-menu-title-row">
+            <span class="mobile-menu-title">{{ item.name }}</span>
+            {% if item.is_available %}
+            <span class="badge badge-success" style="font-size:0.7rem;">Available</span>
+            {% else %}
+            <span class="badge badge-danger" style="font-size:0.7rem;">Unavailable</span>
+            {% endif %}
+          </div>
+          {% if item.description %}
+          <div class="mobile-menu-desc">{{ item.description|truncatechars:70 }}</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="mobile-menu-meta">
+        <div>
+          <span class="text-muted" style="font-size:0.75rem;">Price: </span>
+          <strong>₹{{ item.price }}</strong>
+        </div>
+        <div>
+          <span class="text-muted" style="font-size:0.75rem;">Stock: </span>
+          <strong {% if item.is_low_stock %}class="text-danger"{% endif %}>{{ item.quantity }}</strong>
+          {% if item.is_low_stock %}<span class="badge badge-danger" style="font-size:0.62rem;margin-left:2px;">Low</span>{% endif %}
+        </div>
+      </div>
+
+      <div class="mobile-menu-actions">
+        <a href="{% url 'restaurants:menu_edit' item.pk %}" class="btn btn-secondary btn-sm" style="flex:1;text-align:center;">Edit Item</a>
+        <a href="{% url 'restaurants:menu_delete' item.pk %}" class="btn btn-danger btn-sm" style="flex:1;text-align:center;" data-confirm="Remove '{{ item.name }}'?">Delete</a>
+      </div>
+    </div>
+    {% endfor %}
   </div>
 </div>
 {% endif %}

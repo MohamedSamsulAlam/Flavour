@@ -111,7 +111,8 @@
     <a href="{% url 'restaurants:orders' %}" class="btn btn-secondary btn-sm">View All</a>
   </div>
   {% if orders %}
-  <div class="table-wrap">
+  <!-- Desktop Table View -->
+  <div class="desktop-only-table table-wrap">
     <table class="data-table">
       <thead>
         <tr>
@@ -147,6 +148,39 @@
         {% endfor %}
       </tbody>
     </table>
+  </div>
+
+  <!-- Mobile Responsive Cards View -->
+  <div class="mobile-only-orders-cards">
+    {% for order in orders %}
+    <div class="mobile-order-card">
+      <div class="mobile-order-header">
+        <div>
+          <div class="mobile-order-id">Order #{{ order.id }}</div>
+          <div class="mobile-order-customer">{{ order.customer.username }}</div>
+        </div>
+        <div class="text-right">
+          <span class="badge badge-{{ order.status_badge_class }}">{{ order.get_status_display }}</span>
+          <div class="text-muted" style="font-size:0.75rem;margin-top:4px;">{{ order.created_at|timesince }} ago</div>
+        </div>
+      </div>
+
+      <div class="mobile-order-footer">
+        <div class="mobile-order-total">
+          <span class="text-muted" style="font-size:0.8rem;">Total</span>
+          <strong style="font-size:1.1rem;color:var(--brand);">₹{{ order.total_price }}</strong>
+        </div>
+        <form method="post" action="{% url 'restaurants:update_order_status' order.id %}" class="mobile-order-status-form">
+          {% csrf_token %}
+          <select name="status" class="form-control" style="padding:6px 10px;font-size:0.82rem;" onchange="this.form.submit()">
+            {% for val, label in order.STATUS_CHOICES %}
+            <option value="{{ val }}" {% if order.status == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
   </div>
   {% else %}
   <div class="empty-state">

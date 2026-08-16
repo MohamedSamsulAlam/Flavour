@@ -101,7 +101,7 @@
 </div>
 
 <!-- Charts Row 1 -->
-<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 20px;">
+<div class="analytics-charts-grid">
   <!-- Daily Revenue -->
   <div class="card">
     <div class="card-header">
@@ -109,7 +109,9 @@
       <span class="text-muted" style="font-size:0.78rem;">Last {{ days }} days · delivered orders</span>
     </div>
     <div class="card-body">
-      <canvas id="revenueChart" height="200"></canvas>
+      <div class="chart-wrapper">
+        <canvas id="revenueChart"></canvas>
+      </div>
     </div>
   </div>
 
@@ -119,7 +121,9 @@
       <span class="card-title">🍩 Order Status</span>
     </div>
     <div class="card-body">
-      <canvas id="statusChart" height="200"></canvas>
+      <div class="chart-wrapper">
+        <canvas id="statusChart"></canvas>
+      </div>
     </div>
   </div>
 </div>
@@ -131,7 +135,9 @@
     <span class="text-muted" style="font-size:0.78rem;">By units sold</span>
   </div>
   <div class="card-body">
-    <canvas id="topItemsChart" height="180"></canvas>
+    <div class="chart-wrapper">
+      <canvas id="topItemsChart"></canvas>
+    </div>
   </div>
 </div>
 
