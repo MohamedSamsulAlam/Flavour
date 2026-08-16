@@ -177,5 +177,10 @@ function syncMapFromInputs() {
 }
 latInput.addEventListener('change', syncMapFromInputs);
 lngInput.addEventListener('change', syncMapFromInputs);
+
+window.addEventListener('resize', () => map.invalidateSize());
+document.getElementById('menuToggle')?.addEventListener('click', () => {
+  setTimeout(() => map.invalidateSize(), 300);
+});
 </script>
 {% endblock %}

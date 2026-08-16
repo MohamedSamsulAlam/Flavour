@@ -113,5 +113,10 @@ if (mapData.length > 0) {
     .setContent('<div class="map-popup"><h4>No pinned locations yet</h4><p>Restaurant owners can add coordinates in their profile to appear here.</p></div>')
     .openOn(map);
 }
+
+window.addEventListener('resize', () => map.invalidateSize());
+document.getElementById('menuToggle')?.addEventListener('click', () => {
+  setTimeout(() => map.invalidateSize(), 300);
+});
 </script>
 {% endblock %}

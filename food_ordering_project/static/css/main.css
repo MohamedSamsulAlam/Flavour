@@ -1335,6 +1335,7 @@ table.data-table {
   .sidebar.open {
     transform: translateX(0);
     box-shadow: var(--shadow-lg);
+    z-index: 10000 !important;
   }
 
   .main-content { margin-left: 0; }
@@ -1543,7 +1544,10 @@ table.data-table {
   background: rgba(0,0,0,.3);
   z-index: 99;
 }
-.sidebar-overlay.active { display: block; }
+.sidebar-overlay.active {
+  display: block;
+  z-index: 9999 !important;
+}
 
 /* ── Utilities ── */
 .mt-0 { margin-top: 0; }
@@ -2112,5 +2116,91 @@ table.data-table {
     flex-shrink: 0 !important;
     padding: 6px 14px !important;
     font-size: 0.8rem !important;
+  }
+}
+
+/* ── Empty State Centering Fix ── */
+.empty-state {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  padding: 48px 20px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  margin: 0 auto !important;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 16px;
+  display: block;
+  text-align: center;
+}
+
+.empty-state h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  text-align: center;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.empty-state p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-bottom: 0;
+  text-align: center;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.empty-orders-card {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+}
+
+/* ── Leaflet Map Responsive Positioning & Stacking ── */
+#location-map,
+#restaurant-map,
+.leaflet-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  position: relative !important;
+  z-index: 1 !important;
+  border-radius: var(--radius);
+  overflow: hidden !important;
+}
+
+@media (max-width: 768px) {
+  #location-map {
+    height: 260px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  #restaurant-map {
+    height: 300px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
   }
 }
