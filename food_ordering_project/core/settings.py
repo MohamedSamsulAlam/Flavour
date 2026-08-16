@@ -47,11 +47,11 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'django.contrib.staticfiles',
 
     'cloudinary_storage',
     'cloudinary',
 
-    'django.contrib.staticfiles',
     'django_otp',
     'django_otp.plugins.otp_totp',
 
@@ -137,10 +137,6 @@ USE_TZ = True
 STATIC_URL = os.environ.get('STATIC_URL', '/static/')
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
-# Required by django-cloudinary-storage's collectstatic override so unhashed
-# admin assets are copied before WhiteNoise manifest post-processing. Actual
-# static serving still uses STORAGES['staticfiles'] (WhiteNoise), not Cloudinary.
-STATICFILES_STORAGE = 'cloudinary_storage.storage.StaticCloudinaryStorage'
 
 CLOUDINARY_CLOUD_NAME = os.environ.get('CLOUDINARY_CLOUD_NAME', '').strip()
 CLOUDINARY_API_KEY = os.environ.get('CLOUDINARY_API_KEY', '').strip()
